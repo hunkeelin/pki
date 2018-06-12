@@ -5,7 +5,7 @@
 // Generate a self-signed X.509 certificate for a TLS server. Outputs to
 // 'cert.pem' and 'key.pem' and will overwrite existing files.
 
-package main
+package klinpki
 
 import (
 	"crypto/ecdsa"
@@ -23,16 +23,6 @@ import (
 	"time"
 )
 
-var (
-	emailAddress = flag.String("email-address", "support@klin-pro.com", "The email address of the user you wish to create the certificate for")
-	validFrom    = flag.String("start-date", "", "Creation date formatted as Jan 1 15:04:05 2011")
-	validFor     = flag.Duration("duration", 7500*24*time.Hour, "Duration that certificate is valid for")
-	isCA         = flag.Bool("ca", true, "whether this cert should be its own Certificate Authority")
-	rsaBits      = flag.Int("rsa-bits", 4096, "Size of RSA key to generate. Ignored if --ecdsa-curve is set")
-	ecdsaCurve   = flag.String("ecdsa-curve", "", "ECDSA curve to use to generate a key. Valid values are P224, P256, P384, P521")
-	hname        = flag.String("hostname", "", "hostname")
-)
-
 func publicKey(priv interface{}) interface{} {
 	switch k := priv.(type) {
 	case *rsa.PrivateKey:
@@ -44,40 +34,19 @@ func publicKey(priv interface{}) interface{} {
 	}
 }
 
-func pemBlockForKey(priv interface{}) *pem.Block {
-	switch k := priv.(type) {
-	case *rsa.PrivateKey:
-		return &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(k)}
-	case *ecdsa.PrivateKey:
-		b, err := x509.MarshalECPrivateKey(k)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to marshal ECDSA private key: %v", err)
-			os.Exit(2)
-		}
-		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: b}
-	default:
-		return nil
-	}
-}
-
-func genCert() {
-}
-
-func main() {
+func GenCA(emailAddress, ecdsaCurve, name string, days float64, rsaBits int) {
 	flag.Parse()
 
-	if len(*emailAddress) == 0 {
+	if len(emailAddress) == 0 {
 		log.Fatalf("Missing required --email-address parameter")
 	}
-	if len(*hname) == 0 {
-		log.Fatalf("Missing required --hostname")
-	}
+	hname, _ := os.Hostname()
 
 	var priv interface{}
 	var err error
-	switch *ecdsaCurve {
+	switch ecdsaCurve {
 	case "":
-		priv, err = rsa.GenerateKey(rand.Reader, *rsaBits)
+		priv, err = rsa.GenerateKey(rand.Reader, rsaBits)
 	case "P224":
 		priv, err = ecdsa.GenerateKey(elliptic.P224(), rand.Reader)
 	case "P256":
@@ -87,25 +56,12 @@ func main() {
 	case "P521":
 		priv, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	default:
-		fmt.Fprintf(os.Stderr, "Unrecognized elliptic curve: %q", *ecdsaCurve)
+		fmt.Fprintf(os.Stderr, "Unrecognized elliptic curve: %q", ecdsaCurve)
 		os.Exit(1)
 	}
 	if err != nil {
 		log.Fatalf("failed to generate private key: %s", err)
 	}
-
-	var notBefore time.Time
-	if len(*validFrom) == 0 {
-		notBefore = time.Now()
-	} else {
-		notBefore, err = time.Parse("Jan 2 15:04:05 2006", *validFrom)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to parse creation date: %s\n", err)
-			os.Exit(1)
-		}
-	}
-
-	notAfter := notBefore.Add(*validFor)
 
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
@@ -118,31 +74,24 @@ func main() {
 		Subject: pkix.Name{
 			Organization: []string{"Acme Co"},
 		},
-		NotBefore: notBefore,
-		NotAfter:  notAfter,
+		NotBefore: time.Now(),
+		NotAfter:  time.Now().Add(time.Duration(days*24) * time.Hour),
 
 		KeyUsage: x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth,
 			x509.ExtKeyUsageClientAuth},
 		BasicConstraintsValid: true,
 	}
-	template.DNSNames = append(template.DNSNames, *hname)
-	template.EmailAddresses = append(template.EmailAddresses, *emailAddress)
-	var crtname string
-	if *isCA {
-		template.IsCA = true
-		template.KeyUsage |= x509.KeyUsageCertSign
-		crtname = "ca"
-	} else {
-		crtname = *hname
-	}
-	fmt.Println(crtname)
+	template.DNSNames = append(template.DNSNames, hname)
+	template.EmailAddresses = append(template.EmailAddresses, emailAddress)
+	template.IsCA = true
+	template.KeyUsage |= x509.KeyUsageCertSign
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, publicKey(priv), priv)
 	if err != nil {
 		log.Fatalf("Failed to create certificate: %s", err)
 	}
-	keyOut, err := os.OpenFile(crtname+".key", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	keyOut, err := os.OpenFile(name+".key", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Print("failed to open key.pem for writing:", err)
 		return
@@ -151,7 +100,7 @@ func main() {
 	keyOut.Close()
 	log.Print("written key\n")
 
-	certOut, err := os.Create(crtname + ".crt")
+	certOut, err := os.Create(name + ".crt")
 	if err != nil {
 		log.Fatalf("failed to open cert.pem for writing: %s", err)
 	}

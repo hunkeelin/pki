@@ -1,37 +1,20 @@
-package main
+package klinpki
 
 import (
-	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"fmt"
 	"log"
 	"os"
 )
 
-func pemBlockForKey(priv interface{}) *pem.Block {
-	switch k := priv.(type) {
-	case *rsa.PrivateKey:
-		return &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(k)}
-	case *ecdsa.PrivateKey:
-		b, err := x509.MarshalECPrivateKey(k)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to marshal ECDSA private key: %v", err)
-			os.Exit(2)
-		}
-		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: b}
-	default:
-		return nil
-	}
-}
+func GenCSR(rsaBits int, path string) {
+	hname, _ := os.Hostname()
+	crtname := path + hname
 
-func main() {
-	crtname := "test1.klin-pro.com"
-
-	priv, err := rsa.GenerateKey(rand.Reader, 4096)
+	priv, err := rsa.GenerateKey(rand.Reader, rsaBits)
 	if err != nil {
 		panic(err)
 	}
@@ -56,7 +39,7 @@ func main() {
 		Subject:            subj,
 		SignatureAlgorithm: x509.SHA256WithRSA,
 	}
-	template.DNSNames = append(template.DNSNames, "test1.klin-pro.com")
+	template.DNSNames = append(template.DNSNames, hname)
 	template.EmailAddresses = append(template.EmailAddresses, "support@klin-pro.com")
 	csrOut, err := os.Create(crtname + ".csr")
 	if err != nil {

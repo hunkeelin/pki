@@ -1,4 +1,4 @@
-package main
+package klinpki
 
 import (
 	"crypto/rand"
@@ -6,20 +6,16 @@ import (
 	"encoding/pem"
 	"io/ioutil"
 	"math/big"
-	"os"
 	"time"
 )
 
-func main() {
-	SignCSR("ca.crt", "ca.key", "test1.klin-pro.com.csr", 7200)
-}
-
-func SignCSR(crt, key, csr string, days float64) {
+func SignCSR(crtpath, keypath, csrpath string, days float64) ([]byte, error) {
 	// load CA key pair
 	//      public key
-	caPublicKeyFile, err := ioutil.ReadFile(crt)
+	var clientCRTRaw []byte
+	caPublicKeyFile, err := ioutil.ReadFile(crtpath)
 	if err != nil {
-		panic(err)
+		return clientCRTRaw, err
 	}
 	pemBlock, _ := pem.Decode(caPublicKeyFile)
 	if pemBlock == nil {
@@ -27,13 +23,13 @@ func SignCSR(crt, key, csr string, days float64) {
 	}
 	caCRT, err := x509.ParseCertificate(pemBlock.Bytes)
 	if err != nil {
-		panic(err)
+		return clientCRTRaw, err
 	}
 
 	//      private key
-	caPrivateKeyFile, err := ioutil.ReadFile(key)
+	caPrivateKeyFile, err := ioutil.ReadFile(keypath)
 	if err != nil {
-		panic(err)
+		return clientCRTRaw, err
 	}
 	pemBlock, _ = pem.Decode(caPrivateKeyFile)
 	if pemBlock == nil {
@@ -42,17 +38,17 @@ func SignCSR(crt, key, csr string, days float64) {
 	der := pemBlock.Bytes
 	//	der, err := x509.DecryptPEMBlock(pemBlock, []byte("shit"))
 	//	if err != nil {
-	//		panic(err)
+	//		return clientCRTRaw,err
 	//	}
 	caPrivateKey, err := x509.ParsePKCS1PrivateKey(der)
 	if err != nil {
-		panic(err)
+		return clientCRTRaw, err
 	}
 
 	// load client certificate request
-	clientCSRFile, err := ioutil.ReadFile(csr)
+	clientCSRFile, err := ioutil.ReadFile(csrpath + ".csr")
 	if err != nil {
-		panic(err)
+		return clientCRTRaw, err
 	}
 	pemBlock, _ = pem.Decode(clientCSRFile)
 	if pemBlock == nil {
@@ -60,10 +56,10 @@ func SignCSR(crt, key, csr string, days float64) {
 	}
 	clientCSR, err := x509.ParseCertificateRequest(pemBlock.Bytes)
 	if err != nil {
-		panic(err)
+		return clientCRTRaw, err
 	}
 	if err = clientCSR.CheckSignature(); err != nil {
-		panic(err)
+		return clientCRTRaw, err
 	}
 
 	// create client certificate template
@@ -84,16 +80,11 @@ func SignCSR(crt, key, csr string, days float64) {
 	}
 
 	// create client certificate from template and CA public key
-	clientCRTRaw, err := x509.CreateCertificate(rand.Reader, &clientCRTTemplate, caCRT, clientCSR.PublicKey, caPrivateKey)
+	clientCRTRaw, err = x509.CreateCertificate(rand.Reader, &clientCRTTemplate, caCRT, clientCSR.PublicKey, caPrivateKey)
 	if err != nil {
-		panic(err)
+		return clientCRTRaw, err
 	}
 
 	// save the certificate
-	clientCRTFile, err := os.Create("test1.klin-pro.com.crt")
-	if err != nil {
-		panic(err)
-	}
-	pem.Encode(clientCRTFile, &pem.Block{Type: "CERTIFICATE", Bytes: clientCRTRaw})
-	clientCRTFile.Close()
+	return clientCRTRaw, nil
 }
