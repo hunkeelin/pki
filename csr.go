@@ -10,15 +10,17 @@ import (
 	"os"
 )
 
-func GenCSR(rsaBits int, path string) {
-	hname, _ := os.Hostname()
-	crtname := path + hname
+func GenCSR(rsaBits int, keypath, csrpath string) {
+	hname, err := os.Hostname()
+	if err != nil {
+		panic(err)
+	}
 
 	priv, err := rsa.GenerateKey(rand.Reader, rsaBits)
 	if err != nil {
 		panic(err)
 	}
-	keyOut, err := os.OpenFile(crtname+".key", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	keyOut, err := os.OpenFile(keypath+hname+".key", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Print("failed to open key.pem for writing:", err)
 		return
@@ -28,7 +30,7 @@ func GenCSR(rsaBits int, path string) {
 	log.Print("written key\n")
 
 	subj := pkix.Name{
-		CommonName:         crtname,
+		CommonName:         hname,
 		Country:            []string{"US"},
 		Province:           []string{"CA"},
 		Locality:           []string{"San Francisco"},
@@ -41,7 +43,7 @@ func GenCSR(rsaBits int, path string) {
 	}
 	template.DNSNames = append(template.DNSNames, hname)
 	template.EmailAddresses = append(template.EmailAddresses, "support@klin-pro.com")
-	csrOut, err := os.Create(crtname + ".csr")
+	csrOut, err := os.Create(csrpath + hname + ".csr")
 	if err != nil {
 		log.Fatalf("failed to open cert.pem for writing: %s", err)
 	}
