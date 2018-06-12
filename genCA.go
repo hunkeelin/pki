@@ -15,7 +15,6 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"flag"
 	"fmt"
 	"log"
 	"math/big"
@@ -34,8 +33,7 @@ func publicKey(priv interface{}) interface{} {
 	}
 }
 
-func GenCA(emailAddress, ecdsaCurve, name string, days float64, rsaBits int) {
-	flag.Parse()
+func GenCA(emailAddress, ecdsaCurve, certpath, keypath string, days float64, rsaBits int) {
 
 	if len(emailAddress) == 0 {
 		log.Fatalf("Missing required --email-address parameter")
@@ -91,7 +89,7 @@ func GenCA(emailAddress, ecdsaCurve, name string, days float64, rsaBits int) {
 	if err != nil {
 		log.Fatalf("Failed to create certificate: %s", err)
 	}
-	keyOut, err := os.OpenFile(name+".key", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	keyOut, err := os.OpenFile(keypath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Print("failed to open key.pem for writing:", err)
 		return
@@ -100,7 +98,7 @@ func GenCA(emailAddress, ecdsaCurve, name string, days float64, rsaBits int) {
 	keyOut.Close()
 	log.Print("written key\n")
 
-	certOut, err := os.Create(name + ".crt")
+	certOut, err := os.Create(certpath)
 	if err != nil {
 		log.Fatalf("failed to open cert.pem for writing: %s", err)
 	}
