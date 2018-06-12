@@ -46,7 +46,7 @@ func SignCSR(crtpath, keypath, csrpath string, days float64) ([]byte, error) {
 	}
 
 	// load client certificate request
-	clientCSRFile, err := ioutil.ReadFile(csrpath + ".csr")
+	clientCSRFile, err := ioutil.ReadFile(csrpath)
 	if err != nil {
 		return clientCRTRaw, err
 	}

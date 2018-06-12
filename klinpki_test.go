@@ -9,7 +9,7 @@ import (
 
 func TestSignCSR(t *testing.T) {
 	fmt.Println("testing sign CSR")
-	rawcert, err := SignCSR("ca.crt", "ca.key", "test1.klin-pro.com", 7200)
+	rawcert, err := SignCSR("ca.crt", "ca.key", "test1.klin-pro.com.csr", 7200)
 	if err != nil {
 		panic(err)
 	}
