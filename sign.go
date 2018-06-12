@@ -11,9 +11,13 @@ import (
 )
 
 func main() {
+	SignCSR("ca.crt", "ca.key", "test1.klin-pro.com.csr", 7200)
+}
+
+func SignCSR(crt, key, csr string, days float64) {
 	// load CA key pair
 	//      public key
-	caPublicKeyFile, err := ioutil.ReadFile("ca.crt")
+	caPublicKeyFile, err := ioutil.ReadFile(crt)
 	if err != nil {
 		panic(err)
 	}
@@ -27,7 +31,7 @@ func main() {
 	}
 
 	//      private key
-	caPrivateKeyFile, err := ioutil.ReadFile("ca.key")
+	caPrivateKeyFile, err := ioutil.ReadFile(key)
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +50,7 @@ func main() {
 	}
 
 	// load client certificate request
-	clientCSRFile, err := ioutil.ReadFile("test1.klin-pro.com.csr")
+	clientCSRFile, err := ioutil.ReadFile(csr)
 	if err != nil {
 		panic(err)
 	}
@@ -74,9 +78,8 @@ func main() {
 		Issuer:       caCRT.Subject,
 		Subject:      clientCSR.Subject,
 		NotBefore:    time.Now(),
-		NotAfter:     time.Now().Add(24 * time.Hour),
+		NotAfter:     time.Now().Add(time.Duration(days*24) * time.Hour),
 		KeyUsage:     x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 		DNSNames:     clientCSR.DNSNames,
 	}
 

@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	emailAddress = flag.String("email-address", "", "The email address of the user you wish to create the certificate for")
+	emailAddress = flag.String("email-address", "support@klin-pro.com", "The email address of the user you wish to create the certificate for")
 	validFrom    = flag.String("start-date", "", "Creation date formatted as Jan 1 15:04:05 2011")
 	validFor     = flag.Duration("duration", 7500*24*time.Hour, "Duration that certificate is valid for")
 	isCA         = flag.Bool("ca", true, "whether this cert should be its own Certificate Authority")
