@@ -9,7 +9,8 @@ import (
 
 func TestSignCSR(t *testing.T) {
 	fmt.Println("testing sign CSR")
-	rawcert, err := SignCSR("ca.crt", "ca.key", "test1.klin-pro.com.csr", 7200)
+	csr, _ := GenCSRv2(2048)
+	rawcert, err := SignCSRv2("ca.crt", "ca.key", csr.Bytes, 7200)
 	if err != nil {
 		panic(err)
 	}
@@ -23,9 +24,24 @@ func TestSignCSR(t *testing.T) {
 }
 func TestGenCA(t *testing.T) {
 	fmt.Println("testing GenCA")
-	GenCA("support@klin-pro.com", "", "ca", 7200, 2048)
+	GenCA("support@klin-pro.com", "", "ca.crt", "ca.key", 7200, 2048)
 }
 func TestGenCSR(t *testing.T) {
-	fmt.Println("testing genCSR")
-	GenCSR(2048, "test1.klin-pro.com.key", "")
+	//fmt.Println("testing genCSR")
+	//GenCSR(2048, "test1.klin-pro.com.key", "")
+	fmt.Println("testv2")
+	csr, key := GenCSRv2(2048)
+	certOut, err := os.Create("shit.csr")
+	if err != nil {
+		panic(err)
+	}
+	pem.Encode(certOut, csr)
+	certOut.Close()
+
+	keyOut, err := os.OpenFile("shit.key", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		panic(err)
+	}
+	pem.Encode(keyOut, key)
+	keyOut.Close()
 }
