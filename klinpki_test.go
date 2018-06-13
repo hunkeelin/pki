@@ -27,5 +27,5 @@ func TestGenCA(t *testing.T) {
 }
 func TestGenCSR(t *testing.T) {
 	fmt.Println("testing genCSR")
-	GenCSR(2048, "", "")
+	GenCSR(2048, "test1.klin-pro.com.key", "")
 }

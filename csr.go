@@ -20,7 +20,7 @@ func GenCSR(rsaBits int, keypath, csrpath string) {
 	if err != nil {
 		panic(err)
 	}
-	keyOut, err := os.OpenFile(keypath+hname+".key", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	keyOut, err := os.OpenFile(keypath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Print("failed to open key.pem for writing:", err)
 		return
