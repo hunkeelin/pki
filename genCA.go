@@ -33,18 +33,18 @@ func publicKey(priv interface{}) interface{} {
 	}
 }
 
-func GenCA(emailAddress, ecdsaCurve, certpath, keypath string, days float64, rsaBits int) {
+func GenCA(p *PkiConfig) {
 
-	if len(emailAddress) == 0 {
+	if len(p.emailAddress) == 0 {
 		log.Fatalf("Missing required --email-address parameter")
 	}
 	hname, _ := os.Hostname()
 
 	var priv interface{}
 	var err error
-	switch ecdsaCurve {
+	switch p.ecdsaCurve {
 	case "":
-		priv, err = rsa.GenerateKey(rand.Reader, rsaBits)
+		priv, err = rsa.GenerateKey(rand.Reader, p.rsaBits)
 	case "P224":
 		priv, err = ecdsa.GenerateKey(elliptic.P224(), rand.Reader)
 	case "P256":
@@ -54,7 +54,7 @@ func GenCA(emailAddress, ecdsaCurve, certpath, keypath string, days float64, rsa
 	case "P521":
 		priv, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	default:
-		fmt.Fprintf(os.Stderr, "Unrecognized elliptic curve: %q", ecdsaCurve)
+		fmt.Fprintf(os.Stderr, "Unrecognized elliptic curve: %q", p.ecdsaCurve)
 		os.Exit(1)
 	}
 	if err != nil {
@@ -70,10 +70,10 @@ func GenCA(emailAddress, ecdsaCurve, certpath, keypath string, days float64, rsa
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			Organization: []string{"Acme Co"},
+			Organization: []string{p.organization},
 		},
 		NotBefore: time.Now(),
-		NotAfter:  time.Now().Add(time.Duration(days*24) * time.Hour),
+		NotAfter:  time.Now().Add(time.Duration(p.maxDays*24) * time.Hour),
 
 		KeyUsage: x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth,
@@ -81,7 +81,7 @@ func GenCA(emailAddress, ecdsaCurve, certpath, keypath string, days float64, rsa
 		BasicConstraintsValid: true,
 	}
 	template.DNSNames = append(template.DNSNames, hname)
-	template.EmailAddresses = append(template.EmailAddresses, emailAddress)
+	template.EmailAddresses = append(template.EmailAddresses, p.emailAddress)
 	template.IsCA = true
 	template.KeyUsage |= x509.KeyUsageCertSign
 
@@ -89,7 +89,7 @@ func GenCA(emailAddress, ecdsaCurve, certpath, keypath string, days float64, rsa
 	if err != nil {
 		log.Fatalf("Failed to create certificate: %s", err)
 	}
-	keyOut, err := os.OpenFile(keypath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	keyOut, err := os.OpenFile(p.keypath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Print("failed to open key.pem for writing:", err)
 		return
@@ -98,7 +98,7 @@ func GenCA(emailAddress, ecdsaCurve, certpath, keypath string, days float64, rsa
 	keyOut.Close()
 	log.Print("written key\n")
 
-	certOut, err := os.Create(certpath)
+	certOut, err := os.Create(p.certpath)
 	if err != nil {
 		log.Fatalf("failed to open cert.pem for writing: %s", err)
 	}

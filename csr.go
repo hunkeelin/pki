@@ -25,7 +25,6 @@ func GenCSRv2(rsaBits int) (*pem.Block, *pem.Block) {
 		Country:            []string{"US"},
 		Province:           []string{"CA"},
 		Locality:           []string{"San Francisco"},
-		Organization:       []string{"KCA"},
 		OrganizationalUnit: []string{"IT"},
 	}
 	template := x509.CertificateRequest{
