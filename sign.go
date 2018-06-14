@@ -65,14 +65,14 @@ func SignCSRv2(crtpath, keypath string, csrBytes []byte, days float64) ([]byte, 
 		PublicKeyAlgorithm: clientCSR.PublicKeyAlgorithm,
 		PublicKey:          clientCSR.PublicKey,
 
-		SerialNumber: big.NewInt(2),
-		Issuer:       caCRT.Subject,
-		Subject:      clientCSR.Subject,
-		NotBefore:    time.Now(),
-		NotAfter:     time.Now().Add(time.Duration(days*24) * time.Hour),
-		KeyUsage:     x509.KeyUsageDigitalSignature,
-		DNSNames:     clientCSR.DNSNames,
-		EmailAddress: clientCSR.EmailAddress,
+		SerialNumber:   big.NewInt(2),
+		Issuer:         caCRT.Subject,
+		Subject:        clientCSR.Subject,
+		NotBefore:      time.Now(),
+		NotAfter:       time.Now().Add(time.Duration(days*24) * time.Hour),
+		KeyUsage:       x509.KeyUsageDigitalSignature,
+		DNSNames:       clientCSR.DNSNames,
+		EmailAddresses: clientCSR.EmailAddresses,
 	}
 
 	// create client certificate from template and CA public key

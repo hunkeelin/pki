@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"log"
 	"os"
 )
 
@@ -32,7 +31,7 @@ func GenCSRv2(c *CSRConfig) (*pem.Block, *pem.Block) {
 		SignatureAlgorithm: x509.SHA256WithRSA,
 	}
 	template.DNSNames = append(template.DNSNames, hname)
-	template.EmailAddresses = append(template.EmailAddresses, c.OrganizationUnit)
+	template.EmailAddresses = append(template.EmailAddresses, c.EmailAddress)
 	csrBytes, _ := x509.CreateCertificateRequest(rand.Reader, &template, priv)
 	return &pem.Block{Type: "CERTIFICATE REQUEST", Bytes: csrBytes}, pemBlockForKey(priv)
 }

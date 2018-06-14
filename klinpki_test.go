@@ -9,7 +9,15 @@ import (
 
 func TestSignCSR(t *testing.T) {
 	fmt.Println("testing sign CSR")
-	csr, _ := GenCSRv2(2048)
+	j := &CSRConfig{
+		EmailAddress:       "support@klin-superpro.com",
+		RsaBits:            1024,
+		Country:            "USA",
+		Province:           "CA",
+		Locality:           "SF",
+		OrganizationalUnit: "ITS",
+	}
+	csr, _ := GenCSRv2(j)
 	rawcert, err := SignCSRv2("ca.crt", "ca.key", csr.Bytes, 7200)
 	if err != nil {
 		panic(err)
@@ -39,7 +47,15 @@ func TestGenCSR(t *testing.T) {
 	//fmt.Println("testing genCSR")
 	//GenCSR(2048, "test1.klin-pro.com.key", "")
 	fmt.Println("testv2")
-	csr, key := GenCSRv2(2048)
+	j := &CSRConfig{
+		EmailAddress:       "support@klin-superpro.com",
+		RsaBits:            1024,
+		Country:            "USA",
+		Province:           "CA",
+		Locality:           "SF",
+		OrganizationalUnit: "ITS",
+	}
+	csr, key := GenCSRv2(j)
 	certOut, err := os.Create("shit.csr")
 	if err != nil {
 		panic(err)

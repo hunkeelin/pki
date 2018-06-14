@@ -11,7 +11,6 @@ type CAConfig struct {
 }
 
 type CSRConfig struct {
-	EmailAddress       string
 	RsaBits            int
 	Country            string
 	Province           string
