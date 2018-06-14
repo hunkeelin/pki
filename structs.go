@@ -9,3 +9,13 @@ type CAConfig struct {
 	RsaBits      int
 	Organization string
 }
+
+type CSRConfig struct {
+	EmailAddress       string
+	RsaBits            int
+	Country            string
+	Province           string
+	Locality           string
+	EmailAddress       string
+	OrganizationalUnit string
+}
