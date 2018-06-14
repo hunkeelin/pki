@@ -1,11 +1,11 @@
 package klinpki
 
 type PkiConfig struct {
-	emailAddress string
-	ecdsaCurve   string
-	certpath     string
-	keypath      string
-	maxDays      float64
-	rsaBits      int
-	organization string
+	EmailAddress string
+	EcdsaCurve   string
+	Certpath     string
+	Keypath      string
+	MaxDays      float64
+	RsaBits      int
+	Organization string
 }

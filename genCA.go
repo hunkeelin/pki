@@ -35,16 +35,16 @@ func publicKey(priv interface{}) interface{} {
 
 func GenCA(p *PkiConfig) {
 
-	if len(p.emailAddress) == 0 {
+	if len(p.EmailAddress) == 0 {
 		log.Fatalf("Missing required --email-address parameter")
 	}
 	hname, _ := os.Hostname()
 
 	var priv interface{}
 	var err error
-	switch p.ecdsaCurve {
+	switch p.EcdsaCurve {
 	case "":
-		priv, err = rsa.GenerateKey(rand.Reader, p.rsaBits)
+		priv, err = rsa.GenerateKey(rand.Reader, p.RsaBits)
 	case "P224":
 		priv, err = ecdsa.GenerateKey(elliptic.P224(), rand.Reader)
 	case "P256":
@@ -54,7 +54,7 @@ func GenCA(p *PkiConfig) {
 	case "P521":
 		priv, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	default:
-		fmt.Fprintf(os.Stderr, "Unrecognized elliptic curve: %q", p.ecdsaCurve)
+		fmt.Fprintf(os.Stderr, "Unrecognized elliptic curve: %q", p.EcdsaCurve)
 		os.Exit(1)
 	}
 	if err != nil {
@@ -70,10 +70,10 @@ func GenCA(p *PkiConfig) {
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			Organization: []string{p.organization},
+			Organization: []string{p.Organization},
 		},
 		NotBefore: time.Now(),
-		NotAfter:  time.Now().Add(time.Duration(p.maxDays*24) * time.Hour),
+		NotAfter:  time.Now().Add(time.Duration(p.MaxDays*24) * time.Hour),
 
 		KeyUsage: x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth,
@@ -81,7 +81,7 @@ func GenCA(p *PkiConfig) {
 		BasicConstraintsValid: true,
 	}
 	template.DNSNames = append(template.DNSNames, hname)
-	template.EmailAddresses = append(template.EmailAddresses, p.emailAddress)
+	template.EmailAddresses = append(template.EmailAddresses, p.EmailAddress)
 	template.IsCA = true
 	template.KeyUsage |= x509.KeyUsageCertSign
 
@@ -89,7 +89,7 @@ func GenCA(p *PkiConfig) {
 	if err != nil {
 		log.Fatalf("Failed to create certificate: %s", err)
 	}
-	keyOut, err := os.OpenFile(p.keypath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	keyOut, err := os.OpenFile(p.Keypath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Print("failed to open key.pem for writing:", err)
 		return
@@ -98,7 +98,7 @@ func GenCA(p *PkiConfig) {
 	keyOut.Close()
 	log.Print("written key\n")
 
-	certOut, err := os.Create(p.certpath)
+	certOut, err := os.Create(p.Certpath)
 	if err != nil {
 		log.Fatalf("failed to open cert.pem for writing: %s", err)
 	}
