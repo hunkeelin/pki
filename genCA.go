@@ -33,7 +33,7 @@ func publicKey(priv interface{}) interface{} {
 	}
 }
 
-func GenCA(p *PkiConfig) {
+func GenCA(p *CAConfig) {
 
 	if len(p.EmailAddress) == 0 {
 		log.Fatalf("Missing required --email-address parameter")

@@ -24,7 +24,7 @@ func TestSignCSR(t *testing.T) {
 }
 func TestGenCA(t *testing.T) {
 	fmt.Println("testing GenCA")
-	j := &PkiConfig{
+	j := &CAConfig{
 		EmailAddress: "support@klin-pro.com",
 		EcdsaCurve:   "",
 		Certpath:     "ca.crt",

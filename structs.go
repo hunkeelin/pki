@@ -1,6 +1,6 @@
 package klinpki
 
-type PkiConfig struct {
+type CAConfig struct {
 	EmailAddress string
 	EcdsaCurve   string
 	Certpath     string
