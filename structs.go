@@ -24,5 +24,6 @@ type CSRConfig struct {
 	Province           string
 	Locality           string
 	EmailAddress       string
+	Organization       string
 	OrganizationalUnit string
 }

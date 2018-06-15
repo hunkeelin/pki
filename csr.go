@@ -25,6 +25,7 @@ func GenCSRv2(c *CSRConfig) (*pem.Block, *pem.Block) {
 		Province:           []string{c.Province},
 		Locality:           []string{c.Locality},
 		OrganizationalUnit: []string{c.OrganizationalUnit},
+		Organization:       []string{c.Organization},
 	}
 	template := x509.CertificateRequest{
 		Subject:            subj,

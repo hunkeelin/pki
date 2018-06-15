@@ -16,6 +16,7 @@ func TestSignCSR(t *testing.T) {
 		Province:           "CA",
 		Locality:           "SF",
 		OrganizationalUnit: "ITS",
+		Organization:       "pro",
 	}
 	csr, _ := GenCSRv2(j)
 	f := &SignConfig{
@@ -61,6 +62,7 @@ func TestGenCSR(t *testing.T) {
 		Province:           "CA",
 		Locality:           "SF",
 		OrganizationalUnit: "ITS",
+		Organization:       "pro",
 	}
 	csr, key := GenCSRv2(j)
 	certOut, err := os.Create("shit.csr")
