@@ -18,7 +18,14 @@ func TestSignCSR(t *testing.T) {
 		OrganizationalUnit: "ITS",
 	}
 	csr, _ := GenCSRv2(j)
-	rawcert, err := SignCSRv2("ca.crt", "ca.key", csr.Bytes, 7200)
+	f := &SignConfig{
+		Crtpath:  "ca.crt",
+		Keypath:  "ca.key",
+		CsrBytes: csr.Bytes,
+		Days:     7200,
+		IsCA:     false,
+	}
+	rawcert, err := SignCSRv2(f)
 	if err != nil {
 		panic(err)
 	}

@@ -9,11 +9,11 @@ import (
 	"time"
 )
 
-func SignCSRv2(crtpath, keypath string, csrBytes []byte, days float64) ([]byte, error) {
+func SignCSRv2(s *SignConfig) ([]byte, error) {
 	// load CA key pair
 	//      public key
 	var clientCRTRaw []byte
-	caPublicKeyFile, err := ioutil.ReadFile(crtpath)
+	caPublicKeyFile, err := ioutil.ReadFile(s.Crtpath)
 	if err != nil {
 		return clientCRTRaw, err
 	}
@@ -27,7 +27,7 @@ func SignCSRv2(crtpath, keypath string, csrBytes []byte, days float64) ([]byte, 
 	}
 
 	//      private key
-	caPrivateKeyFile, err := ioutil.ReadFile(keypath)
+	caPrivateKeyFile, err := ioutil.ReadFile(s.Keypath)
 	if err != nil {
 		return clientCRTRaw, err
 	}
@@ -49,7 +49,7 @@ func SignCSRv2(crtpath, keypath string, csrBytes []byte, days float64) ([]byte, 
 	if err != nil {
 		return clientCRTRaw, err
 	}
-	clientCSR, err := x509.ParseCertificateRequest(csrBytes)
+	clientCSR, err := x509.ParseCertificateRequest(s.CsrBytes)
 	if err != nil {
 		return clientCRTRaw, err
 	}
@@ -65,14 +65,16 @@ func SignCSRv2(crtpath, keypath string, csrBytes []byte, days float64) ([]byte, 
 		PublicKeyAlgorithm: clientCSR.PublicKeyAlgorithm,
 		PublicKey:          clientCSR.PublicKey,
 
-		SerialNumber:   big.NewInt(2),
-		Issuer:         caCRT.Subject,
-		Subject:        clientCSR.Subject,
-		NotBefore:      time.Now(),
-		NotAfter:       time.Now().Add(time.Duration(days*24) * time.Hour),
-		KeyUsage:       x509.KeyUsageDigitalSignature,
-		DNSNames:       clientCSR.DNSNames,
-		EmailAddresses: clientCSR.EmailAddresses,
+		SerialNumber:          big.NewInt(2),
+		Issuer:                caCRT.Subject,
+		Subject:               clientCSR.Subject,
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().Add(time.Duration(s.Days*24) * time.Hour),
+		KeyUsage:              x509.KeyUsageDigitalSignature,
+		DNSNames:              clientCSR.DNSNames,
+		EmailAddresses:        clientCSR.EmailAddresses,
+		BasicConstraintsValid: s.IsCA,
+		IsCA: s.IsCA,
 	}
 
 	// create client certificate from template and CA public key

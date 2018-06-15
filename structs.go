@@ -10,6 +10,14 @@ type CAConfig struct {
 	Organization string
 }
 
+type SignConfig struct {
+	Crtpath  string
+	Keypath  string
+	CsrBytes []byte
+	Days     float64
+	IsCA     bool
+}
+
 type CSRConfig struct {
 	RsaBits            int
 	Country            string
