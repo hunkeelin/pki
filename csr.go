@@ -6,14 +6,10 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"os"
 )
 
 func GenCSRv2(c *CSRConfig) (*pem.Block, *pem.Block) {
-	hname, err := os.Hostname()
-	if err != nil {
-		panic(err)
-	}
+	hname := Hostname()
 
 	priv, err := rsa.GenerateKey(rand.Reader, c.RsaBits)
 	if err != nil {
