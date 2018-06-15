@@ -38,7 +38,7 @@ func GenCA(p *CAConfig) {
 	if len(p.EmailAddress) == 0 {
 		log.Fatalf("Missing required --email-address parameter")
 	}
-	hname, _ := os.Hostname()
+	hname := Hostname()
 
 	var priv interface{}
 	var err error
