@@ -11,7 +11,7 @@ func TestSignCSR(t *testing.T) {
 	fmt.Println("testing sign CSR")
 	j := &CSRConfig{
 		EmailAddress:       "support@klin-superpro.com",
-		RsaBits:            4096,
+		RsaBits:            1024,
 		Country:            "USA",
 		Province:           "CA",
 		Locality:           "SF",
@@ -46,7 +46,7 @@ func TestGenCA(t *testing.T) {
 		Certpath:     "ca.crt",
 		Keypath:      "ca.key",
 		MaxDays:      7200,
-		RsaBits:      4096,
+		RsaBits:      1024,
 		Organization: "klin-pro",
 	}
 	GenCA(j)

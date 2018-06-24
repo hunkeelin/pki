@@ -70,7 +70,7 @@ func SignCSRv2(s *SignConfig) ([]byte, error) {
 		Subject:               clientCSR.Subject,
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().Add(time.Duration(s.Days*24) * time.Hour),
-		KeyUsage:              x509.KeyUsageDigitalSignature,
+		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		DNSNames:              clientCSR.DNSNames,
 		EmailAddresses:        clientCSR.EmailAddresses,
 		BasicConstraintsValid: s.IsCA,
