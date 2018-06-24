@@ -76,6 +76,11 @@ func SignCSRv2(s *SignConfig) ([]byte, error) {
 		BasicConstraintsValid: s.IsCA,
 		IsCA: s.IsCA,
 	}
+	if s.IsCA {
+		clientCRTTemplate.BasicConstraintsValid = s.IsCA
+		clientCRTTemplate.IsCA = s.IsCA
+		clientCRTTemplate.ExtKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth}
+	}
 
 	// create client certificate from template and CA public key
 	clientCRTRaw, err = x509.CreateCertificate(rand.Reader, &clientCRTTemplate, caCRT, clientCSR.PublicKey, caPrivateKey)

@@ -11,7 +11,7 @@ func TestSignCSR(t *testing.T) {
 	fmt.Println("testing sign CSR")
 	j := &CSRConfig{
 		EmailAddress:       "support@klin-superpro.com",
-		RsaBits:            1024,
+		RsaBits:            4096,
 		Country:            "USA",
 		Province:           "CA",
 		Locality:           "SF",
@@ -24,14 +24,14 @@ func TestSignCSR(t *testing.T) {
 		Keypath:  "ca.key",
 		CsrBytes: csr.Bytes,
 		Days:     7200,
-		IsCA:     false,
+		IsCA:     true,
 	}
 	rawcert, err := SignCSRv2(f)
 	if err != nil {
 		panic(err)
 	}
 
-	clientCRTFile, err := os.Create("test1.klin-pro.com" + ".crt")
+	clientCRTFile, err := os.Create("testcert" + ".crt")
 	if err != nil {
 		panic(err)
 	}
