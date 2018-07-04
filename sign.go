@@ -17,7 +17,10 @@ func SignCSRv2(s *SignConfig) ([]byte, error) {
 	if err != nil {
 		return clientCRTRaw, err
 	}
-	pemBlock, _ := pem.Decode(caPublicKeyFile)
+	pemBlock, err := pem.Decode(caPublicKeyFile)
+	if err != nil {
+		panic(err)
+	}
 	if pemBlock == nil {
 		panic("pem.Decode failed")
 	}
@@ -31,7 +34,10 @@ func SignCSRv2(s *SignConfig) ([]byte, error) {
 	if err != nil {
 		return clientCRTRaw, err
 	}
-	pemBlock, _ = pem.Decode(caPrivateKeyFile)
+	pemBlock, err = pem.Decode(caPrivateKeyFile)
+	if err != nil {
+		panic(err)
+	}
 	if pemBlock == nil {
 		panic("pem.Decode failed")
 	}
