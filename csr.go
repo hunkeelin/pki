@@ -26,6 +26,7 @@ func GenCSRv2(c *CSRConfig) (*pem.Block, *pem.Block) {
 	template := x509.CertificateRequest{
 		Subject:            subj,
 		SignatureAlgorithm: x509.SHA256WithRSA,
+		DNSNames:           c.DNSNames,
 	}
 	template.DNSNames = append(template.DNSNames, hname)
 	template.EmailAddresses = append(template.EmailAddresses, c.EmailAddress)

@@ -3,29 +3,27 @@ package klinpki
 import (
 	"encoding/pem"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"testing"
 )
 
 func TestSignCSR(t *testing.T) {
 	fmt.Println("testing sign CSR")
-	j := &CSRConfig{
-		EmailAddress:       "support@klin-superpro.com",
-		RsaBits:            1024,
-		Country:            "USA",
-		Province:           "CA",
-		Locality:           "SF",
-		OrganizationalUnit: "ITS",
-		Organization:       "pro",
+	csr, err := ioutil.ReadFile("noobshit")
+	if err != nil {
+		panic(err)
 	}
-	csr, _ := GenCSRv2(j)
 	f := &SignConfig{
 		Crtpath:  "ca.crt",
 		Keypath:  "ca.key",
-		CsrBytes: csr.Bytes,
+		CsrBytes: csr,
 		Days:     7200,
 		IsCA:     true,
 	}
+	//	ff, _ := os.Create("noob")
+	//	defer ff.Close()
+	//	ff.Write(csr.Bytes)
 	rawcert, err := SignCSRv2(f)
 	if err != nil {
 		panic(err)
@@ -63,14 +61,18 @@ func TestGenCSR(t *testing.T) {
 		Locality:           "SF",
 		OrganizationalUnit: "ITS",
 		Organization:       "pro",
+		DNSNames:           []string{"fuck", "fuckboi.square.com"},
 	}
 	csr, key := GenCSRv2(j)
-	certOut, err := os.Create("shit.csr")
+	csrout, err := os.Create("shit.csr")
 	if err != nil {
 		panic(err)
 	}
-	pem.Encode(certOut, csr)
-	certOut.Close()
+	pem.Encode(csrout, csr)
+	ff, _ := os.Create("noobshit")
+	defer ff.Close()
+	ff.Write(csr.Bytes)
+	csrout.Close()
 
 	keyOut, err := os.OpenFile("shit.key", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
