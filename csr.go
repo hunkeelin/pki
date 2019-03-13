@@ -9,7 +9,7 @@ import (
 )
 
 func GenCSRv2(c *CSRConfig) (*pem.Block, *pem.Block) {
-	var string hname
+	var hname string
 	if c.CommonName == "" {
 		hname = Hostname()
 	} else {
