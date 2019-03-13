@@ -26,5 +26,6 @@ type CSRConfig struct {
 	EmailAddress       string
 	Organization       string
 	OrganizationalUnit string
+	CommonName         string
 	DNSNames           []string
 }

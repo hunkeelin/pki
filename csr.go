@@ -9,7 +9,12 @@ import (
 )
 
 func GenCSRv2(c *CSRConfig) (*pem.Block, *pem.Block) {
-	hname := Hostname()
+	var string hname
+	if c.CommonName == "" {
+		hname = Hostname()
+	} else {
+		hname = c.CommonName
+	}
 
 	priv, err := rsa.GenerateKey(rand.Reader, c.RsaBits)
 	if err != nil {
