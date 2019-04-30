@@ -12,10 +12,14 @@ import (
 func SignCSRv2(s *SignConfig) ([]byte, error) {
 	// load CA key pair
 	//      public key
-	var clientCRTRaw []byte
-	caPublicKeyFile, err := ioutil.ReadFile(s.Crtpath)
-	if err != nil {
-		return clientCRTRaw, err
+	var clientCRTRaw, caPublicKeyFile, caPrivateKeyFile []byte
+	if s.CertBytes != nil {
+		caPublicKeyFile = s.CertBytes
+	} else {
+		caPublicKeyFile, err := ioutil.ReadFile(s.Crtpath)
+		if err != nil {
+			return clientCRTRaw, err
+		}
 	}
 	pemBlock, _ := pem.Decode(caPublicKeyFile)
 	if pemBlock == nil {
@@ -27,10 +31,15 @@ func SignCSRv2(s *SignConfig) ([]byte, error) {
 	}
 
 	//      private key
-	caPrivateKeyFile, err := ioutil.ReadFile(s.Keypath)
-	if err != nil {
-		return clientCRTRaw, err
+	if s.KeyBytes != nil {
+		caPrivateKeyFile = s.KeyBytes
+	} else {
+		caPrivateKeyFile, err := ioutil.ReadFile(s.Keypath)
+		if err != nil {
+			return clientCRTRaw, err
+		}
 	}
+
 	pemBlock, _ = pem.Decode(caPrivateKeyFile)
 	if pemBlock == nil {
 		panic("pem.Decode failed")
@@ -74,7 +83,7 @@ func SignCSRv2(s *SignConfig) ([]byte, error) {
 		DNSNames:              clientCSR.DNSNames,
 		EmailAddresses:        clientCSR.EmailAddresses,
 		BasicConstraintsValid: s.IsCA,
-		IsCA: s.IsCA,
+		IsCA:                  s.IsCA,
 	}
 	if s.IsCA {
 		clientCRTTemplate.BasicConstraintsValid = s.IsCA
