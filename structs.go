@@ -13,6 +13,8 @@ type CAConfig struct {
 type SignConfig struct {
 	Crtpath  string
 	Keypath  string
+	CrtBytes []byte
+	KeyBytes []byte
 	CsrBytes []byte
 	Days     float64
 	IsCA     bool
