@@ -4,18 +4,20 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
 	"io/ioutil"
 	"math/big"
 	"time"
 )
 
-func SignCSRv2(s *SignConfig) ([]byte, error) {
+func SignCSRv3(s *SignConfig) ([]byte, error) {
+	// load CA key pair
+	//      public key
 	var clientCRTRaw []byte
-	caPublicKeyFile, err := ioutil.ReadFile(s.Crtpath)
-	if err != nil {
-		return clientCRTRaw, err
+	if s.CrtBytes == nil || s.KeyBytes == nil {
+		return clientCRTRaw, fmt.Errorf("key/certs is nil")
 	}
-	pemBlock, _ := pem.Decode(caPublicKeyFile)
+	pemBlock, _ := pem.Decode(s.CrtBytes)
 	if pemBlock == nil {
 		panic("pem.Decode failed")
 	}
@@ -25,12 +27,7 @@ func SignCSRv2(s *SignConfig) ([]byte, error) {
 	}
 
 	//      private key
-	caPrivateKeyFile, err := ioutil.ReadFile(s.Keypath)
-	if err != nil {
-		return clientCRTRaw, err
-	}
-
-	pemBlock, _ = pem.Decode(caPrivateKeyFile)
+	pemBlock, _ = pem.Decode(s.KeyBytes)
 	if pemBlock == nil {
 		panic("pem.Decode failed")
 	}
