@@ -13,8 +13,8 @@ func SignCSRv2(s *SignConfig) ([]byte, error) {
 	// load CA key pair
 	//      public key
 	var clientCRTRaw, caPublicKeyFile, caPrivateKeyFile []byte
-	if s.CertBytes != nil {
-		caPublicKeyFile = s.CertBytes
+	if s.CrtBytes != nil {
+		caPublicKeyFile = s.CrtBytes
 	} else {
 		caPublicKeyFile, err := ioutil.ReadFile(s.Crtpath)
 		if err != nil {
