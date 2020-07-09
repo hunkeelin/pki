@@ -30,10 +30,11 @@ func TestSignCsr(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 	cert, err := SignCsr(SignCsrInput{
-		IsCa:   true,
-		CaCert: ca.Cert,
-		CaKey:  ca.Key,
-		Csr:    csr.Csr,
+		IsCa:      true,
+		CaCert:    ca.Cert,
+		CaKey:     ca.Key,
+		Csr:       csr.Csr,
+		ValidDays: 2,
 	})
 	if err != nil {
 		t.Errorf(err.Error())
