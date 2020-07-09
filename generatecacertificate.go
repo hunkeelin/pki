@@ -55,7 +55,7 @@ func GenerateCaCertificate(g GenerateCaCertificateInput) (GenerateCaCertificateO
 		return GenerateCaCertificateOutput{}, err
 	}
 
-	// Initializing certificiate template
+	// Initializing certificate template
 	var template x509.Certificate
 	template = x509.Certificate{
 		SerialNumber: serialNumber,
