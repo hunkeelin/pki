@@ -1,7 +1,8 @@
 package pki
 
 import (
-	"fmt"
+	"crypto/x509"
+	"encoding/pem"
 	"testing"
 )
 
@@ -19,6 +20,10 @@ func TestGenCsr(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	fmt.Println(string(f.Key))
-	fmt.Println(string(f.Csr))
+	csrDecoded, _ := pem.Decode(f.Csr)
+	_, err = x509.ParseCertificateRequest(csrDecoded.Bytes)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 }
