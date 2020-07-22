@@ -1,17 +1,16 @@
 package pki
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestSignCsr(t *testing.T) {
 	csr, err := GenerateCertificateSigningRequest(GenerateCertificateSigningRequestInput{
-		EmailAddresses:     []string{"foo@klin-pro.com"},
+		EmailAddresses:     []string{"devops@varomoney.com"},
 		RsaBits:            4096,
 		Province:           []string{"CA"},
 		Locality:           []string{"SF"},
-		Organization:       []string{"klin-pro"},
+		Organization:       []string{"varomoney"},
 		OrganizationalUnit: []string{"IT"},
 		CommonName:         "pii-vault",
 		DNSNames:           []string{""},
@@ -20,16 +19,16 @@ func TestSignCsr(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 	ca, err := GenerateCaCertificate(GenerateCaCertificateInput{
-		EmailAddresses: []string{"foo@klin-pro.com"},
-		MaxDays:        30,
+		EmailAddresses: []string{"devops@varomoney.com"},
+		MaxDays:        7200,
 		RsaBits:        4096,
-		Organization:   "klin-pro",
-		DNSNames:       []string{"test1.klin-pro.com"},
+		Organization:   "varomoney",
+		DNSNames:       []string{"rootca"},
 	})
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	cert, err := SignCsr(SignCsrInput{
+	_, err = SignCsr(SignCsrInput{
 		IsCa:      true,
 		CaCert:    ca.Cert,
 		CaKey:     ca.Key,
@@ -39,5 +38,4 @@ func TestSignCsr(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	fmt.Println(string(cert.Cert))
 }

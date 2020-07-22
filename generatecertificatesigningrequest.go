@@ -1,11 +1,13 @@
 package pki
 
 import (
+	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 )
 
 // GenerateCertificateSigningRequestInput
@@ -19,6 +21,7 @@ type GenerateCertificateSigningRequestInput struct {
 	OrganizationalUnit    []string                 // OrginzationUnit
 	CommonName            string                   // CommonName
 	DNSNames              []string                 // DnsNames
+	Password              string                   // Password
 	RawCertificateRequest *x509.CertificateRequest // RawCertificateRequest
 }
 
@@ -58,8 +61,36 @@ func GenerateCertificateSigningRequest(g GenerateCertificateSigningRequestInput)
 	if err != nil {
 		return GenerateCertificateSigningRequestOutput{}, err
 	}
+	keyPem, err := pemBlockForKey(g.Password, priv)
+	if err != nil {
+		return GenerateCertificateSigningRequestOutput{}, err
+	}
 	return GenerateCertificateSigningRequestOutput{
 		Csr: pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE REQUEST", Bytes: csrBytes}),
-		Key: pem.EncodeToMemory(pemBlockForKey(priv)),
+		Key: pem.EncodeToMemory(keyPem),
 	}, nil
+}
+func pemBlockForKey(password string, priv interface{}) (*pem.Block, error) {
+	switch k := priv.(type) {
+	case *rsa.PrivateKey:
+		var encryptedkey *pem.Block
+		var err error
+		if password != "" {
+			encryptedkey, err = x509.EncryptPEMBlock(rand.Reader, "RSA PRIVATE KEY", x509.MarshalPKCS1PrivateKey(k), []byte(password), x509.PEMCipherAES128)
+			if err != nil {
+				return &pem.Block{}, err
+			}
+		} else {
+			encryptedkey = &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(k)}
+		}
+		return encryptedkey, nil
+	case *ecdsa.PrivateKey:
+		b, err := x509.MarshalECPrivateKey(k)
+		if err != nil {
+			return &pem.Block{}, err
+		}
+		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: b}, nil
+	default:
+		return nil, fmt.Errorf("No valid digital signiture")
+	}
 }

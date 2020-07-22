@@ -10,7 +10,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"math/big"
-	"os"
 	"time"
 )
 
@@ -20,6 +19,7 @@ type GenerateCaCertificateInput struct {
 	EcdsaCurve     string            // EcdsaCurve specify this if you want EcsdasCurve, if you leave it blank it will default to RSA
 	MaxDays        float64           // MaxDays
 	RsaBits        int               // RsaBits
+	Password       string            // Password
 	Organization   string            // Orgnaization
 	DNSNames       []string          // DNSNames The list of DNS names
 	RawCertificate *x509.Certificate // RawCertificate alternative one can forgo all the params above and simply stick the raw certficiate to be generated
@@ -82,8 +82,12 @@ func GenerateCaCertificate(g GenerateCaCertificateInput) (GenerateCaCertificateO
 	if err != nil {
 		return GenerateCaCertificateOutput{}, err
 	}
+	keyPem, err := pemBlockForKey(g.Password, priv)
+	if err != nil {
+		return GenerateCaCertificateOutput{}, err
+	}
 	return GenerateCaCertificateOutput{
-		Key:  pem.EncodeToMemory(pemBlockForKey(priv)),
+		Key:  pem.EncodeToMemory(keyPem),
 		Cert: pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes}),
 	}, nil
 }
@@ -100,21 +104,6 @@ func publicKey(priv interface{}) interface{} {
 		return &k.PublicKey
 	case *ecdsa.PrivateKey:
 		return &k.PublicKey
-	default:
-		return nil
-	}
-}
-func pemBlockForKey(priv interface{}) *pem.Block {
-	switch k := priv.(type) {
-	case *rsa.PrivateKey:
-		return &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(k)}
-	case *ecdsa.PrivateKey:
-		b, err := x509.MarshalECPrivateKey(k)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to marshal ECDSA private key: %v", err)
-			os.Exit(2)
-		}
-		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: b}
 	default:
 		return nil
 	}
