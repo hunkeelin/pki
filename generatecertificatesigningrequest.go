@@ -76,7 +76,7 @@ func pemBlockForKey(password string, priv interface{}) (*pem.Block, error) {
 		var encryptedkey *pem.Block
 		var err error
 		if password != "" {
-			encryptedkey, err = x509.EncryptPEMBlock(rand.Reader, "RSA PRIVATE KEY", x509.MarshalPKCS1PrivateKey(k), []byte(password), x509.PEMCipherAES128)
+			encryptedkey, err = x509.EncryptPEMBlock(rand.Reader, "RSA PRIVATE KEY", x509.MarshalPKCS1PrivateKey(k), []byte(password), x509.PEMCipherAES256)
 			if err != nil {
 				return &pem.Block{}, err
 			}
