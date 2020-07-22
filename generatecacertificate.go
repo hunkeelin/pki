@@ -92,6 +92,7 @@ func GenerateCaCertificate(g GenerateCaCertificateInput) (GenerateCaCertificateO
 	}, nil
 }
 
+// GenerateCaCertificateOutput
 type GenerateCaCertificateOutput struct {
 	Key  []byte
 	Cert []byte

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// SignCsrInput
+// SignCsrInput the input of the function
 type SignCsrInput struct {
 	CaCert    []byte // CaCert
 	CaKey     []byte // CaKey
@@ -18,12 +18,12 @@ type SignCsrInput struct {
 	ValidDays int    // ValidDays
 }
 
-// SignCsrOutput
+// SignCsrOutput output of the function
 type SignCsrOutput struct {
 	Cert []byte
 }
 
-// SignCsr
+// SignCsr signs CSR
 func SignCsr(g SignCsrInput) (SignCsrOutput, error) {
 	if g.CaCert == nil || g.CaKey == nil {
 		return SignCsrOutput{}, fmt.Errorf("Please specify CA certs and key")

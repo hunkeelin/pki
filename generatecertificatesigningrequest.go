@@ -10,7 +10,7 @@ import (
 	"fmt"
 )
 
-// GenerateCertificateSigningRequestInput
+// GenerateCertificateSigningRequestInput the input for the function
 type GenerateCertificateSigningRequestInput struct {
 	RsaBits               int                      // RsaBits
 	Country               []string                 // Country
@@ -25,13 +25,13 @@ type GenerateCertificateSigningRequestInput struct {
 	RawCertificateRequest *x509.CertificateRequest // RawCertificateRequest
 }
 
-//GenerateCertificateSigningRequestOutput
+// GenerateCertificateSigningRequestOutput the output for the function
 type GenerateCertificateSigningRequestOutput struct {
 	Csr []byte // Csr
 	Key []byte // Key
 }
 
-// GenerateCertificateSigningRequest
+// GenerateCertificateSigningRequest the function that signs csr
 func GenerateCertificateSigningRequest(g GenerateCertificateSigningRequestInput) (GenerateCertificateSigningRequestOutput, error) {
 
 	priv, err := rsa.GenerateKey(rand.Reader, g.RsaBits)
