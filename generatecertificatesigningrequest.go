@@ -42,8 +42,8 @@ func GenerateCertificateSigningRequest(g GenerateCertificateSigningRequestInput)
 		return GenerateCertificateSigningRequestOutput{}, err
 	}
 	var emailAddress string
-	if len(g.EmailAddress) == 1 {
-		emailAddress = g.EmailAddress[0]
+	if len(g.EmailAddresses) == 1 {
+		emailAddress = g.EmailAddresses[0]
 	}
 	subj := pkix.Name{
 		CommonName:         g.CommonName,
