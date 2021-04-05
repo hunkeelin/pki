@@ -46,6 +46,12 @@ func GenerateCertificateSigningRequest(g GenerateCertificateSigningRequestInput)
 		OrganizationalUnit: g.OrganizationalUnit,
 		Organization:       g.Organization,
 	}
+	oidEmailAddress := asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 9, 1}
+	rawSubj := subj.ToRDNSequence()
+	rawSubj = append(rawSubj, []pkix.AttributeTypeAndValue{
+		{Type: oidEmailAddress, Value: g.EmailAddresses},
+	})
+	asn1Subj, _ := asn1.Marshal(rawSubj)
 	var template x509.CertificateRequest
 	template = x509.CertificateRequest{
 		Subject:            subj,
