@@ -33,11 +33,17 @@ type GenerateCertificateSigningRequestOutput struct {
 }
 
 // GenerateCertificateSigningRequest the function that signs csr
+var oidEmailAddress = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 9, 1}
+
 func GenerateCertificateSigningRequest(g GenerateCertificateSigningRequestInput) (GenerateCertificateSigningRequestOutput, error) {
 
 	priv, err := rsa.GenerateKey(rand.Reader, g.RsaBits)
 	if err != nil {
 		return GenerateCertificateSigningRequestOutput{}, err
+	}
+	var emailAddress string
+	if len(g.EmailAddress) == 1 {
+		emailAddress = g.EmailAddress[0]
 	}
 	subj := pkix.Name{
 		CommonName:         g.CommonName,
@@ -46,18 +52,19 @@ func GenerateCertificateSigningRequest(g GenerateCertificateSigningRequestInput)
 		Locality:           g.Locality,
 		OrganizationalUnit: g.OrganizationalUnit,
 		Organization:       g.Organization,
+		ExtraNames: []pkix.AttributeTypeAndValue{
+			{
+				Type: oidEmailAddress,
+				Value: asn1.RawValue{
+					Tag:   asn1.TagIA5String,
+					Bytes: []byte(emailAddress),
+				},
+			},
+		},
 	}
-	oidEmailAddress := asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 9, 1}
-	rawSubj := subj.ToRDNSequence()
-	for _, emailAddress := range g.EmailAddresses {
-		rawSubj = append(rawSubj, []pkix.AttributeTypeAndValue{
-			{Type: oidEmailAddress, Value: emailAddress},
-		})
-	}
-	asn1Subj, _ := asn1.Marshal(rawSubj)
 	var template x509.CertificateRequest
 	template = x509.CertificateRequest{
-		RawSubject:         asn1Subj,
+		Subject:            subj,
 		SignatureAlgorithm: x509.SHA256WithRSA,
 		DNSNames:           g.DNSNames,
 		EmailAddresses:     g.EmailAddresses,
