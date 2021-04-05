@@ -55,7 +55,7 @@ func GenerateCertificateSigningRequest(g GenerateCertificateSigningRequestInput)
 	asn1Subj, _ := asn1.Marshal(rawSubj)
 	var template x509.CertificateRequest
 	template = x509.CertificateRequest{
-		Subject:            asn1Subj,
+		RawSubject:         asn1Subj,
 		SignatureAlgorithm: x509.SHA256WithRSA,
 		DNSNames:           g.DNSNames,
 		EmailAddresses:     g.EmailAddresses,
