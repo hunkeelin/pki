@@ -80,6 +80,8 @@ func SignCsr(g SignCsrInput) (SignCsrOutput, error) {
 	if err != nil {
 		return SignCsrOutput{}, err
 	}
+	fmt.Println("fuckyou")
+	fmt.Println(clientCert)
 	return SignCsrOutput{
 		Cert: append(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: clientCert}), g.CaCert...),
 	}, nil

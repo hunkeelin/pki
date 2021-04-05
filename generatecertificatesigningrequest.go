@@ -45,6 +45,7 @@ func GenerateCertificateSigningRequest(g GenerateCertificateSigningRequestInput)
 		Locality:           g.Locality,
 		OrganizationalUnit: g.OrganizationalUnit,
 		Organization:       g.Organization,
+		EmailAddresses:     g.EmailAddresses,
 	}
 	var template x509.CertificateRequest
 	template = x509.CertificateRequest{
